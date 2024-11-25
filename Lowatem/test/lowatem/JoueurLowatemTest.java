@@ -16,8 +16,8 @@ public class JoueurLowatemTest {
      */
     @Test
     public void testActionsPossibles() {
-        // testActionsPossibles_niveau1();
-        // testActionsPossibles_niveau2();
+        //testActionsPossibles_niveau1();
+        testActionsPossibles_niveau2();
     }
 
     /**
@@ -60,15 +60,17 @@ public class JoueurLowatemTest {
         JoueurLowatem joueur = new JoueurLowatem();
         // un plateau sur lequel on veut tester actionsPossibles()
         Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU2);
+        
         // on choisit la couleur du joueur
         char couleur = 'R';
+        
         // on choisit le niveau
         int niveau = 2;
+        
         // on lance actionsPossibles
-        String[] actionsPossiblesDepuisPlateau
-                = joueur.actionsPossibles(plateau, couleur, niveau);
-        ActionsPossibles actionsPossibles
-                = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, couleur, niveau);
+        ActionsPossibles actionsPossibles = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
         // on peut afficher toutes les actions possibles calculées :
         actionsPossibles.afficher();
         // on peut aussi tester si une action est dans les actions possibles :
@@ -77,9 +79,11 @@ public class JoueurLowatemTest {
         assertTrue(actionsPossibles.contient("dADdG,9,0"));
         assertTrue(actionsPossibles.contient("dADaA,9,0"));
         assertTrue(actionsPossibles.contient("dADnA,9,0"));
+        
         // on peut aussi tester si une action n'est pas dans les actions possibles :
         assertFalse(actionsPossibles.contient("dADnO,9,0"));
         assertFalse(actionsPossibles.contient("dADdA,8,0"));
+        
         // vérifions s'il y a le bon nombre d'actions possibles :
         assertEquals(Coordonnees.NB_LIGNES + Coordonnees.NB_COLONNES - 1,
                 actionsPossiblesDepuisPlateau.length);
