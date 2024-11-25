@@ -2,6 +2,7 @@ package lowatem;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 /**
  * Joueur implémentant les actions possibles à partir d'un plateau, pour un
@@ -28,16 +29,19 @@ public class JoueurLowatem implements IJoueurLowatem {
         ActionsPossibles actions = new ActionsPossibles();
         
         // calculer les points de vie sur le plateau initial
-        NbPointsDeVie nbPv = nbPointsDeVie(plateau);
         
         // déplacements possibles depuis (g,G)
+        
+        NbPointsDeVie nbPv = nbPointsDeVie(plateau);
         
         for (int y = 0; y < plateau.length; y++)
         {
             for (int x = 0; x < plateau[y].length; x++)
             {
                 if (plateau[y][x].unitePresente())
-                    ajoutDeplDepuis(new Coordonnees(y, x), actions, nbPv);
+                {
+                    ajoutDeplDepuis(plateau, new Coordonnees(y, x), actions, nbPv);
+                }
             }
         }
         
@@ -55,7 +59,23 @@ public class JoueurLowatem implements IJoueurLowatem {
      */
     static NbPointsDeVie nbPointsDeVie(Case[][] plateau) {
         // TODO il y en aura besoin à un moment !
-        return new NbPointsDeVie(9, 0);
+        
+        int totalRouge = 0;
+        int totalNoir = 0;
+        
+        for (Case[] plateau1 : plateau) {
+            for (Case cas : plateau1) {
+                if (cas.typeUnite == Case.CAR_ROUGE) {
+                    totalRouge += cas.pointsDeVie;
+                }
+                else if (cas.typeUnite == Case.CAR_NOIR) {
+                    totalNoir += cas.pointsDeVie;
+                }
+                
+            }
+        }
+        
+        return new NbPointsDeVie(totalRouge, totalNoir);
     }
 
     /**
@@ -66,11 +86,11 @@ public class JoueurLowatem implements IJoueurLowatem {
      * @param nbPv nombre de points de vie de chaque joueur sur le plateau
      * initial
      */
-    void ajoutDeplDepuis(Coordonnees coord, ActionsPossibles actions, NbPointsDeVie nbPv) {
+    void ajoutDeplDepuis(Case[][] plateau, Coordonnees coord, ActionsPossibles actions, NbPointsDeVie nbPv) {
         // on part dans chacune des 4 directions
         for (Direction dir : Direction.toutes())
         {
-            ajoutDeplDansDirection(dir, coord, actions, nbPv);
+            ajoutDeplDansDirection(plateau, dir, coord, actions, nbPv);
         }
         // on ajoute le déplacement "sur place"
         ajoutDepl(coord, coord, actions, nbPv);
@@ -86,11 +106,16 @@ public class JoueurLowatem implements IJoueurLowatem {
      * @param nbPv nombre de points de vie de chaque joueur sur le plateau
      * initial
      */
-    void ajoutDeplDansDirection(Direction dir, Coordonnees src, ActionsPossibles actions, NbPointsDeVie nbPv) {
+    void ajoutDeplDansDirection(Case[][] plateau, Direction dir, Coordonnees src, ActionsPossibles actions, NbPointsDeVie nbPv) {
         Coordonnees dst = src.suivantes(dir);
+        
         while (dst.estDansPlateau())
         {
-            ajoutDepl(src, dst, actions, nbPv);
+            if (!plateau[dst.ligne][dst.colonne].unitePresente())
+            {
+                ajoutDepl(src, dst, actions, nbPv);
+            }
+            
             dst = dst.suivantes(dir);
         }
     }

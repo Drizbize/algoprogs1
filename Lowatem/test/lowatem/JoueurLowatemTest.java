@@ -17,7 +17,8 @@ public class JoueurLowatemTest {
     @Test
     public void testActionsPossibles() {
         //testActionsPossibles_niveau1();
-        testActionsPossibles_niveau2();
+        //testActionsPossibles_niveau2();
+        testActionsPossibles_niveau3();
     }
 
     /**
@@ -87,6 +88,28 @@ public class JoueurLowatemTest {
         // vérifions s'il y a le bon nombre d'actions possibles :
         assertEquals(Coordonnees.NB_LIGNES + Coordonnees.NB_COLONNES - 1,
                 actionsPossiblesDepuisPlateau.length);
+    }
+    
+    public void testActionsPossibles_niveau3()
+    {
+        JoueurLowatem joueur = new JoueurLowatem();
+        // un plateau sur lequel on veut tester actionsPossibles()
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU3);
+        
+        char couleur = 'R';
+        
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, couleur, 3);
+        ActionsPossibles actionsPossibles = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossibles.afficher();
+        
+        assertTrue(actionsPossibles.contient("dFDcF,16,0"));
+        assertTrue(actionsPossibles.contient("dFDaF,16,0"));
+        assertTrue(actionsPossibles.contient("dADdE,16,0"));
+        assertTrue(actionsPossibles.contient("dADdG,16,0"));
+        
+        assertFalse(actionsPossibles.contient("dADdF,16,0"));
+        assertFalse(actionsPossibles.contient("dFDdA,16,0"));
     }
 
     @Test
@@ -225,6 +248,41 @@ public class JoueurLowatemTest {
               n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               """;
+    
+    final String PLATEAU_NIVEAU3
+            = """
+                 A   B   C   D   E   F   G   H   I   J   K   L   M   N 
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              a|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              b|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              c|   |   |   |   |   |   |   |   |SR2|   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              d|SR9|   |   |   |   |SR1|   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              e|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              f|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              g|   |   |   |   |   |   |SR4|   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              h|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              i|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              j|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              k|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              l|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              m|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              """;
+    
 
     final String PLATEAU_NB_PV
             = """
