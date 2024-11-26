@@ -38,14 +38,12 @@ public class JoueurLowatem implements IJoueurLowatem {
         {
             for (int x = 0; x < plateau[y].length; x++)
             {
-                if (plateau[y][x].unitePresente())
+                if (plateau[y][x].unitePresente() && plateau[y][x].couleurUnite == couleurJoueur)
                 {
                     ajoutDeplDepuis(plateau, new Coordonnees(y, x), actions, nbPv);
                 }
             }
         }
-        
-        //ajoutDeplDepuis(Coordonnees.depuisCars('g', 'G'), actions, nbPv);
         
         System.out.println("actionsPossibles : fin");
         return actions.nettoyer();
@@ -65,10 +63,10 @@ public class JoueurLowatem implements IJoueurLowatem {
         
         for (Case[] plateau1 : plateau) {
             for (Case cas : plateau1) {
-                if (cas.typeUnite == Case.CAR_ROUGE) {
+                if (cas.couleurUnite == Case.CAR_ROUGE) {
                     totalRouge += cas.pointsDeVie;
                 }
-                else if (cas.typeUnite == Case.CAR_NOIR) {
+                else if (cas.couleurUnite == Case.CAR_NOIR) {
                     totalNoir += cas.pointsDeVie;
                 }
                 
