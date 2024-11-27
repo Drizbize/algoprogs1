@@ -18,7 +18,9 @@ public class JoueurLowatemTest {
     public void testActionsPossibles() {
         //testActionsPossibles_niveau1();
         //testActionsPossibles_niveau2();
-        testActionsPossibles_niveau3();
+        //testActionsPossibles_niveau3();
+        //testActionsPossibles_niveau4();
+        testActionsPossibles_niveau5();
     }
 
     /**
@@ -111,15 +113,98 @@ public class JoueurLowatemTest {
         assertFalse(actionsPossibles.contient("dADdF,16,0"));
         assertFalse(actionsPossibles.contient("dFDdA,16,0"));
     }
+    
+    public void testActionsPossibles_niveau4()
+    {
+        JoueurLowatem joueur = new JoueurLowatem();
+        // un plateau sur lequel on veut tester actionsPossibles()
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU4);
+        
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'R', 4);
+        ActionsPossibles actionsPossiblesRouge = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'N', 4);
+        ActionsPossibles actionsPossiblesNoir = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        //dADdE dADdG gGDdG gGDgF
+        assertTrue(actionsPossiblesRouge.contient("dADdE,13,3"));
+        assertTrue(actionsPossiblesRouge.contient("dADdG,13,3"));
+        assertTrue(actionsPossiblesRouge.contient("gGDdG,13,3"));
+        assertTrue(actionsPossiblesRouge.contient("gGDgF,13,3"));
+        
+        
+        //dADdF dFDeF cIDcG
+        assertFalse(actionsPossiblesRouge.contient("dADdF,13,3"));
+        assertFalse(actionsPossiblesRouge.contient("dFDeF,13,3"));
+        assertFalse(actionsPossiblesRouge.contient("cIDcG,13,3"));
+        
+        //dFDdB dFDdG cIDeI
+        assertTrue(actionsPossiblesNoir.contient("dFDdB,13,3"));
+        assertTrue(actionsPossiblesNoir.contient("dFDdG,13,3"));
+        assertTrue(actionsPossiblesNoir.contient("cIDeI,13,3"));
+        
+        //dADbA gGDdG dFDdA
+        assertFalse(actionsPossiblesNoir.contient("dADbA,13,3"));
+        assertFalse(actionsPossiblesNoir.contient("gGDdG,13,3"));
+        assertFalse(actionsPossiblesNoir.contient("dFDdA,13,3"));
+    }
+    
+    public void testActionsPossibles_niveau5()
+    {
+        JoueurLowatem joueur = new JoueurLowatem();
+        // un plateau sur lequel on veut tester actionsPossibles()
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU5);
+        
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'R', 5);
+        ActionsPossibles actionsPossiblesRouge = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'N', 5);
+        ActionsPossibles actionsPossiblesNoir = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        //dADdE dADdG gGDdG gGDgF
+        assertTrue(actionsPossiblesRouge.contient("dADdE,13,7"));
+        assertTrue(actionsPossiblesRouge.contient("dADdG,13,7"));
+        assertTrue(actionsPossiblesRouge.contient("gGDdG,13,7"));
+        assertTrue(actionsPossiblesRouge.contient("gGDgF,13,7"));
+        
+        
+        //dADdF dFDeF cIDcG
+        assertFalse(actionsPossiblesRouge.contient("dADdF,13,7"));
+        assertFalse(actionsPossiblesRouge.contient("dFDeF,13,7"));
+        assertFalse(actionsPossiblesRouge.contient("cIDcG,13,7"));
+        
+        //dFDdB dFDdG cIDeI
+        assertTrue(actionsPossiblesNoir.contient("dFDdB,13,7"));
+        assertTrue(actionsPossiblesNoir.contient("dFDdG,13,7"));
+        assertTrue(actionsPossiblesNoir.contient("cIDeI,13,7"));
+        
+        //dADbA gGDdG dFDdA
+        assertFalse(actionsPossiblesNoir.contient("dADbA,13,7"));
+        assertFalse(actionsPossiblesNoir.contient("gGDdG,13,7"));
+        assertFalse(actionsPossiblesNoir.contient("dFDdA,13,7"));
+        
+        
+        //dADdAAeA dADdEAdF dADdIAcI gGDdGAdF
+        assertTrue(actionsPossiblesRouge.contient("dADdAAeA,13,7"));
+        assertTrue(actionsPossiblesRouge.contient("dADdEAdF,13,7"));
+        assertTrue(actionsPossiblesRouge.contient("dADdIAcI,13,7"));
+        assertTrue(actionsPossiblesRouge.contient("gGDdGAdF,13,7"));
+        
+        //eADeAAdA dFDdBAdA cIDcAAdA
+        assertTrue(actionsPossiblesNoir.contient("eADeAAdA,13,7"));
+        assertTrue(actionsPossiblesNoir.contient("dFDdBAdA,13,7"));
+        assertTrue(actionsPossiblesNoir.contient("cIDcAAdA,13,7"));
+    }
 
     @Test
     public void testAjoutDeplDepuis() {
-        // à décommenter dès le début...
-        /*
+        
         JoueurLowatem joueur = new JoueurLowatem();
         ActionsPossibles actions = new ActionsPossibles();
         NbPointsDeVie nbPv = new NbPointsDeVie(9, 0);
-        joueur.ajoutDeplDepuis(Coordonnees.depuisCars('f', 'D'), actions, nbPv);
+        
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU3);
+        joueur.ajoutDeplDepuis(plateau, Coordonnees.depuisCars('f', 'D'), actions, nbPv);
         // les horizontaux avec la case d'origine
         assertTrue(actions.contient("fDDfA,9,0"));
         assertTrue(actions.contient("fDDfB,9,0"));
@@ -138,7 +223,6 @@ public class JoueurLowatemTest {
         assertFalse(actions.contient("fDDfA,1,0"));
         // finalement on doit en avoir 1 + 13 + 13
         assertEquals(27, actions.nbActions);
-         */
     }
 
     @Test
@@ -156,7 +240,6 @@ public class JoueurLowatemTest {
     @Test
     public void testNbPointsDeVie() {
         // à décommenter le moment venu...
-        /*
         // plateau : rouge 9, noir 0
         Case[][] plateau1 = Utils.plateauDepuisTexte(PLATEAU_NIVEAU1);
         NbPointsDeVie nbPv1 = JoueurLowatem.nbPointsDeVie(plateau1);
@@ -172,7 +255,6 @@ public class JoueurLowatemTest {
         NbPointsDeVie nbPv = JoueurLowatem.nbPointsDeVie(plateauNbPv);
         assertEquals(14, nbPv.nbPvRouge);
         assertEquals(9, nbPv.nbPvNoir);
-         */
     }
 
     /**
@@ -262,6 +344,74 @@ public class JoueurLowatemTest {
               d|SR9|   |   |   |   |SR1|   |   |   |   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               e|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              f|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              g|   |   |   |   |   |   |SR4|   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              h|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              i|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              j|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              k|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              l|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              m|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              """;
+    
+    final String PLATEAU_NIVEAU4
+            = """
+                 A   B   C   D   E   F   G   H   I   J   K   L   M   N 
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              a|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              b|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              c|   |   |   |   |   |   |   |   |SN2|   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              d|SR9|   |   |   |   |SN1|   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              e|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              f|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              g|   |   |   |   |   |   |SR4|   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              h|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              i|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              j|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              k|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              l|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              m|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              """;
+    
+    final String PLATEAU_NIVEAU5
+            = """
+                 A   B   C   D   E   F   G   H   I   J   K   L   M   N 
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              a|   |   |   |   |   |   |   |   |   |   |   |   |   |   |R: dADdAAeA dADdEAdF dADdIAcI gGDdGAdF
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              b|   |   |   |   |   |   |   |   |   |   |   |   |   |   |N: eADeAAdA dFDdBAdA cIDcAAdA
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              c|   |   |   |   |   |   |   |   |SN2|   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              d|SR9|   |   |   |   |SN1|   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              e|SN4|   |   |   |   |   |   |   |   |   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               f|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+

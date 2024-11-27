@@ -105,16 +105,39 @@ public class JoueurLowatem implements IJoueurLowatem {
      * initial
      */
     void ajoutDeplDansDirection(Case[][] plateau, Direction dir, Coordonnees src, ActionsPossibles actions, NbPointsDeVie nbPv) {
+        checkAddAttack(plateau, src, src, actions, nbPv); // attack test
+        
         Coordonnees dst = src.suivantes(dir);
         
         while (dst.estDansPlateau())
         {
-            if (!plateau[dst.ligne][dst.colonne].unitePresente())
+            Case unite = plateau[dst.ligne][dst.colonne];
+            
+            if (!unite.unitePresente())
             {
                 ajoutDepl(src, dst, actions, nbPv);
+                
+                checkAddAttack(plateau, src, dst, actions, nbPv);
             }
             
             dst = dst.suivantes(dir);
+        }
+    }
+    
+    void checkAddAttack(Case[][] plateau, Coordonnees src, Coordonnees dst, ActionsPossibles actions, NbPointsDeVie nbPv)
+    {
+        Case origUnit = plateau[src.ligne][src.colonne];
+        for (Direction attackDir : Direction.toutes())
+        {
+            Coordonnees nearby = dst.suivantes(attackDir);
+            if (nearby.estDansPlateau())
+            {
+                Case uniteNear = plateau[nearby.ligne][nearby.colonne];
+                if (uniteNear.unitePresente() && uniteNear.couleurUnite != origUnit.couleurUnite)
+                {
+                    actions.ajouterAction(chaineActionAttack(src, dst, nearby, nbPv));
+                }
+            }
         }
     }
 
@@ -142,6 +165,14 @@ public class JoueurLowatem implements IJoueurLowatem {
     static String chaineActionDepl(Coordonnees src, Coordonnees dst, NbPointsDeVie nbPv) {
         return "" + src.carLigne() + src.carColonne()
                 + "D" + dst.carLigne() + dst.carColonne()
+                + "," + nbPv.nbPvRouge + "," + nbPv.nbPvNoir;
+    }
+    
+    static String chaineActionAttack(Coordonnees src, Coordonnees dst, Coordonnees attackPos, NbPointsDeVie nbPv)
+    {
+        return "" + src.carLigne() + src.carColonne()
+                + "D" + dst.carLigne() + dst.carColonne()
+                + 'A' + attackPos.carLigne() + attackPos.carColonne()
                 + "," + nbPv.nbPvRouge + "," + nbPv.nbPvNoir;
     }
 }
