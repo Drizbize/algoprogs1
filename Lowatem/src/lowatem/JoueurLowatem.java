@@ -40,7 +40,10 @@ public class JoueurLowatem implements IJoueurLowatem {
             {
                 if (plateau[y][x].unitePresente() && plateau[y][x].couleurUnite == couleurJoueur)
                 {
-                    ajoutDeplDepuis(plateau, new Coordonnees(y, x), actions, nbPv);
+                    Coordonnees src = new Coordonnees(y, x);
+                    
+                    checkAddAttack(plateau, src, src, actions, nbPv);
+                    ajoutDeplDepuis(plateau, src, actions, nbPv);
                 }
             }
         }
@@ -105,8 +108,6 @@ public class JoueurLowatem implements IJoueurLowatem {
      * initial
      */
     void ajoutDeplDansDirection(Case[][] plateau, Direction dir, Coordonnees src, ActionsPossibles actions, NbPointsDeVie nbPv) {
-        checkAddAttack(plateau, src, src, actions, nbPv); // attack test
-        
         Coordonnees dst = src.suivantes(dir);
         
         while (dst.estDansPlateau())
@@ -135,10 +136,45 @@ public class JoueurLowatem implements IJoueurLowatem {
                 Case uniteNear = plateau[nearby.ligne][nearby.colonne];
                 if (uniteNear.unitePresente() && uniteNear.couleurUnite != origUnit.couleurUnite)
                 {
-                    actions.ajouterAction(chaineActionAttack(src, dst, nearby, nbPv));
+                    NbPointsDeVie newTotalHealth = getNewTotalHealth(origUnit, uniteNear, nbPv);
+                    actions.ajouterAction(chaineActionAttack(src, dst, nearby, newTotalHealth));
                 }
             }
         }
+    }
+    
+    static NbPointsDeVie getNewTotalHealth(Case origUnit, Case attackUnit, NbPointsDeVie totalHP)
+    {
+        NbPointsDeVie oldHealths = new NbPointsDeVie();
+        oldHealths.nbPvRouge = origUnit.couleurUnite == Case.CAR_ROUGE ? origUnit.pointsDeVie : attackUnit.pointsDeVie;
+        oldHealths.nbPvNoir = origUnit.couleurUnite == Case.CAR_NOIR ? origUnit.pointsDeVie : attackUnit.pointsDeVie;
+
+        NbPointsDeVie healths = setHealth(origUnit.pointsDeVie, attackUnit.pointsDeVie, origUnit.couleurUnite);
+
+        NbPointsDeVie newTotalHealth = new NbPointsDeVie();
+        newTotalHealth.nbPvRouge = totalHP.nbPvRouge - (oldHealths.nbPvRouge - healths.nbPvRouge);
+        newTotalHealth.nbPvNoir = totalHP.nbPvNoir - (oldHealths.nbPvNoir - healths.nbPvNoir);
+        
+        return newTotalHealth;
+    }
+    
+    static NbPointsDeVie setHealth(int oldPvAttacker, int oldPvAttack, char attackerColor)
+    {   
+        int resultAttacker = oldPvAttacker - 2 - (int)((oldPvAttack - 5) / 2);
+        int resultAttack = oldPvAttack - 4 - (int)((oldPvAttacker - 5) / 2); // 3 - 4 + 1
+        
+        if (resultAttacker < 0)
+            resultAttacker = 0;
+        
+        if (resultAttack < 0)
+            resultAttack = 0;
+        
+        NbPointsDeVie nbPv = new NbPointsDeVie();
+        
+        nbPv.nbPvRouge = attackerColor == Case.CAR_ROUGE ? resultAttacker : resultAttack;
+        nbPv.nbPvNoir = attackerColor == Case.CAR_NOIR ? resultAttacker : resultAttack;
+        
+        return nbPv;
     }
 
     /**

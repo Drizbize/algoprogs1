@@ -195,6 +195,55 @@ public class JoueurLowatemTest {
         assertTrue(actionsPossiblesNoir.contient("dFDdBAdA,13,7"));
         assertTrue(actionsPossiblesNoir.contient("cIDcAAdA,13,7"));
     }
+    
+    public String getDirectionWithHealth(String diractionAttack, Case[][] plateau, NbPointsDeVie totalHP)
+    {
+        Coordonnees src = Coordonnees.depuisCars(diractionAttack.charAt(0), diractionAttack.charAt(1));
+        //Coordonnees dst = Coordonnees.depuisCars(diractionAttack.charAt(3), diractionAttack.charAt(4));
+        Coordonnees attack = Coordonnees.depuisCars(diractionAttack.charAt(6), diractionAttack.charAt(7));
+        
+        Case origUnit = plateau[src.ligne][src.colonne];
+        Case attackUnit = plateau[attack.ligne][attack.colonne];
+        
+        NbPointsDeVie newTotalHealth = JoueurLowatem.getNewTotalHealth(origUnit, attackUnit, totalHP);
+        
+        return diractionAttack + "," + newTotalHealth.nbPvRouge + "," + newTotalHealth.nbPvNoir;
+    }
+    
+    @Test
+    public void testActionsPossible_niveau6()
+    {
+        JoueurLowatem joueur = new JoueurLowatem();
+        // un plateau sur lequel on veut tester actionsPossibles()
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU6);
+        
+        NbPointsDeVie totalHP = JoueurLowatem.nbPointsDeVie(plateau);
+        
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'R', 6);
+        ActionsPossibles actionsPossiblesRouge = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'N', 6);
+        ActionsPossibles actionsPossiblesNoir = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesRouge.afficher();
+        System.out.println("----------------");
+        actionsPossiblesNoir.afficher();
+        
+        //jADjFAkF jADjIAjJ hKDjKAjJ jMDgMAfM
+        assertTrue(actionsPossiblesNoir.contient(getDirectionWithHealth("jADjFAkF", plateau, totalHP)));
+        assertTrue(actionsPossiblesNoir.contient(getDirectionWithHealth("jADjIAjJ", plateau, totalHP)));
+        assertTrue(actionsPossiblesNoir.contient(getDirectionWithHealth("hKDjKAjJ", plateau, totalHP)));
+        assertTrue(actionsPossiblesNoir.contient(getDirectionWithHealth("jMDgMAfM", plateau, totalHP)));
+        
+        //kFDkAAjA kFDkMAjM
+        assertTrue(actionsPossiblesRouge.contient(getDirectionWithHealth("kFDkAAjA", plateau, totalHP)));
+        assertTrue(actionsPossiblesRouge.contient(getDirectionWithHealth("kFDkMAjM", plateau, totalHP)));
+        
+        assertFalse(actionsPossiblesRouge.contient(getDirectionWithHealth("jADjFAkF", plateau, totalHP)));
+        assertFalse(actionsPossiblesRouge.contient(getDirectionWithHealth("jADjIAjJ", plateau, totalHP)));
+        assertFalse(actionsPossiblesRouge.contient(getDirectionWithHealth("hKDjKAjJ", plateau, totalHP)));
+        assertFalse(actionsPossiblesRouge.contient(getDirectionWithHealth("jMDgMAfM", plateau, totalHP)));
+    }
 
     @Test
     public void testAjoutDeplDepuis() {
@@ -403,9 +452,9 @@ public class JoueurLowatemTest {
             = """
                  A   B   C   D   E   F   G   H   I   J   K   L   M   N 
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-              a|   |   |   |   |   |   |   |   |   |   |   |   |   |   |R: dADdAAeA dADdEAdF dADdIAcI gGDdGAdF
+              a|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
-              b|   |   |   |   |   |   |   |   |   |   |   |   |   |   |N: eADeAAdA dFDdBAdA cIDcAAdA
+              b|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               c|   |   |   |   |   |   |   |   |SN2|   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
@@ -431,6 +480,40 @@ public class JoueurLowatemTest {
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              """;
+    
+    final String PLATEAU_NIVEAU6
+            = """
+                A   B   C   D   E   F   G   H   I   J   K   L   M   N 
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             a|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             b|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             c|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             d|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             e|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             f|   |   |   |   |   |   |   |   |   |   |   |   |SR3|   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             g|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             h|   |   |   |   |   |   |   |   |   |   |SN3|   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             i|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             j|SN3|   |   |   |   |   |   |   |   |SR3|   |   |SN2|   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             k|   |   |   |   |   |SR2|   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             l|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             m|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+             n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+              +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               """;
     
 
