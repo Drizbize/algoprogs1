@@ -110,14 +110,20 @@ public class JoueurLowatem implements IJoueurLowatem {
     void ajoutDeplDansDirection(Case[][] plateau, Direction dir, Coordonnees src, ActionsPossibles actions, NbPointsDeVie nbPv) {
         Coordonnees dst = src.suivantes(dir);
         
-        while (dst.estDansPlateau())
+        int steps = 0;
+        boolean isRunning = true;
+        while (dst.estDansPlateau() && isRunning)
         {
-            Case unite = plateau[dst.ligne][dst.colonne];
+            steps++;
             
-            if (!unite.unitePresente())
+            Case unite = plateau[dst.ligne][dst.colonne];
+            if (unite.nature == Utils.CAR_EAU)
+            {
+                isRunning = false;
+            }
+            else if (!unite.unitePresente())
             {
                 ajoutDepl(src, dst, actions, nbPv);
-                
                 checkAddAttack(plateau, src, dst, actions, nbPv);
             }
             
@@ -149,7 +155,7 @@ public class JoueurLowatem implements IJoueurLowatem {
         oldHealths.nbPvRouge = origUnit.couleurUnite == Case.CAR_ROUGE ? origUnit.pointsDeVie : attackUnit.pointsDeVie;
         oldHealths.nbPvNoir = origUnit.couleurUnite == Case.CAR_NOIR ? origUnit.pointsDeVie : attackUnit.pointsDeVie;
 
-        NbPointsDeVie healths = setHealth(origUnit.pointsDeVie, attackUnit.pointsDeVie, origUnit.couleurUnite);
+        NbPointsDeVie healths = getAttackedHealth(origUnit.pointsDeVie, attackUnit.pointsDeVie, origUnit.couleurUnite);
 
         NbPointsDeVie newTotalHealth = new NbPointsDeVie();
         newTotalHealth.nbPvRouge = totalHP.nbPvRouge - (oldHealths.nbPvRouge - healths.nbPvRouge);
@@ -158,7 +164,7 @@ public class JoueurLowatem implements IJoueurLowatem {
         return newTotalHealth;
     }
     
-    static NbPointsDeVie setHealth(int oldPvAttacker, int oldPvAttack, char attackerColor)
+    static NbPointsDeVie getAttackedHealth(int oldPvAttacker, int oldPvAttack, char attackerColor)
     {   
         int resultAttacker = oldPvAttacker - 2 - (int)((oldPvAttack - 5) / 2);
         int resultAttack = oldPvAttack - 4 - (int)((oldPvAttacker - 5) / 2); // 3 - 4 + 1
@@ -176,6 +182,11 @@ public class JoueurLowatem implements IJoueurLowatem {
         
         return nbPv;
     }
+    
+    static int getStepHealth(int step, int origHealth)
+    {
+        return origHealth - (int)(0.3 * step);
+    }
 
     /**
      * Ajout d'une action de déplacement dans l'ensemble des actions possibles.
@@ -187,6 +198,7 @@ public class JoueurLowatem implements IJoueurLowatem {
      * initial
      */
     void ajoutDepl(Coordonnees src, Coordonnees dst, ActionsPossibles actions, NbPointsDeVie nbPv) {
+        
         actions.ajouterAction(chaineActionDepl(src, dst, nbPv));
     }
 

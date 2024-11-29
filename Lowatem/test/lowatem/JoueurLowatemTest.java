@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
+import org.xml.sax.SAXException;
 
 /**
  * Tests unitaires de la classe JoueurLowatem.
@@ -199,7 +200,6 @@ public class JoueurLowatemTest {
     public String getDirectionWithHealth(String diractionAttack, Case[][] plateau, NbPointsDeVie totalHP)
     {
         Coordonnees src = Coordonnees.depuisCars(diractionAttack.charAt(0), diractionAttack.charAt(1));
-        //Coordonnees dst = Coordonnees.depuisCars(diractionAttack.charAt(3), diractionAttack.charAt(4));
         Coordonnees attack = Coordonnees.depuisCars(diractionAttack.charAt(6), diractionAttack.charAt(7));
         
         Case origUnit = plateau[src.ligne][src.colonne];
@@ -208,6 +208,22 @@ public class JoueurLowatemTest {
         NbPointsDeVie newTotalHealth = JoueurLowatem.getNewTotalHealth(origUnit, attackUnit, totalHP);
         
         return diractionAttack + "," + newTotalHealth.nbPvRouge + "," + newTotalHealth.nbPvNoir;
+    }
+    
+    public String getDirection(String diraction, Case[][] plateau, NbPointsDeVie totalHP)
+    {
+        String result;
+        
+        if (diraction.length() == 8)
+        {
+            result = getDirectionWithHealth(diraction, plateau, totalHP);
+        }
+        else
+        {
+            result = diraction + "," + totalHP.nbPvRouge + "," + totalHP.nbPvNoir;
+        }
+        
+        return result;
     }
     
     @Test
@@ -230,19 +246,55 @@ public class JoueurLowatemTest {
         actionsPossiblesNoir.afficher();
         
         //jADjFAkF jADjIAjJ hKDjKAjJ jMDgMAfM
-        assertTrue(actionsPossiblesNoir.contient(getDirectionWithHealth("jADjFAkF", plateau, totalHP)));
-        assertTrue(actionsPossiblesNoir.contient(getDirectionWithHealth("jADjIAjJ", plateau, totalHP)));
-        assertTrue(actionsPossiblesNoir.contient(getDirectionWithHealth("hKDjKAjJ", plateau, totalHP)));
-        assertTrue(actionsPossiblesNoir.contient(getDirectionWithHealth("jMDgMAfM", plateau, totalHP)));
+        assertTrue(actionsPossiblesNoir.contient(getDirection("jADjFAkF", plateau, totalHP)));
+        assertTrue(actionsPossiblesNoir.contient(getDirection("jADjIAjJ", plateau, totalHP)));
+        assertTrue(actionsPossiblesNoir.contient(getDirection("hKDjKAjJ", plateau, totalHP)));
+        assertTrue(actionsPossiblesNoir.contient(getDirection("jMDgMAfM", plateau, totalHP)));
         
         //kFDkAAjA kFDkMAjM
-        assertTrue(actionsPossiblesRouge.contient(getDirectionWithHealth("kFDkAAjA", plateau, totalHP)));
-        assertTrue(actionsPossiblesRouge.contient(getDirectionWithHealth("kFDkMAjM", plateau, totalHP)));
+        assertTrue(actionsPossiblesRouge.contient(getDirection("kFDkAAjA", plateau, totalHP)));
+        assertTrue(actionsPossiblesRouge.contient(getDirection("kFDkMAjM", plateau, totalHP)));
         
-        assertFalse(actionsPossiblesRouge.contient(getDirectionWithHealth("jADjFAkF", plateau, totalHP)));
-        assertFalse(actionsPossiblesRouge.contient(getDirectionWithHealth("jADjIAjJ", plateau, totalHP)));
-        assertFalse(actionsPossiblesRouge.contient(getDirectionWithHealth("hKDjKAjJ", plateau, totalHP)));
-        assertFalse(actionsPossiblesRouge.contient(getDirectionWithHealth("jMDgMAfM", plateau, totalHP)));
+        assertFalse(actionsPossiblesRouge.contient(getDirection("jADjFAkF", plateau, totalHP)));
+        assertFalse(actionsPossiblesRouge.contient(getDirection("jADjIAjJ", plateau, totalHP)));
+        assertFalse(actionsPossiblesRouge.contient(getDirection("hKDjKAjJ", plateau, totalHP)));
+        assertFalse(actionsPossiblesRouge.contient(getDirection("jMDgMAfM", plateau, totalHP)));
+    }
+    
+    @Test
+    public void testActionsPossible_niveau7()
+    {
+        JoueurLowatem joueur = new JoueurLowatem();
+        // un plateau sur lequel on veut tester actionsPossibles()
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU7);
+        
+        NbPointsDeVie totalHP = JoueurLowatem.nbPointsDeVie(plateau);
+        
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'R', 7);
+        ActionsPossibles actionsPossiblesRouge = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'N', 7);
+        ActionsPossibles actionsPossiblesNoir = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        //gKDjK kGDkJ
+        assertTrue(actionsPossiblesRouge.contient(getDirection("gKDjK", plateau, totalHP)));
+        assertTrue(actionsPossiblesRouge.contient(getDirection("kGDkJ", plateau, totalHP)));
+        
+        //gKDkK gKDmK kGDkK kGDkN
+        assertFalse(actionsPossiblesRouge.contient(getDirection("gKDkK", plateau, totalHP)));
+        assertFalse(actionsPossiblesRouge.contient(getDirection("gKDmK", plateau, totalHP)));
+        assertFalse(actionsPossiblesRouge.contient(getDirection("kGDkK", plateau, totalHP)));
+        assertFalse(actionsPossiblesRouge.contient(getDirection("kGDkN", plateau, totalHP)));
+        
+        //dKDjK jHDjK
+        assertTrue(actionsPossiblesNoir.contient(getDirection("dKDjK", plateau, totalHP)));
+        assertTrue(actionsPossiblesNoir.contient(getDirection("jHDjK", plateau, totalHP)));
+        
+        //dKDkK dKDnK jHDjL jHDjN
+        assertFalse(actionsPossiblesNoir.contient(getDirection("dKDkK", plateau, totalHP)));
+        assertFalse(actionsPossiblesNoir.contient(getDirection("dKDnK", plateau, totalHP)));
+        assertFalse(actionsPossiblesNoir.contient(getDirection("jHDjL", plateau, totalHP)));
+        assertFalse(actionsPossiblesNoir.contient(getDirection("jHDjN", plateau, totalHP)));
     }
 
     @Test
@@ -514,6 +566,40 @@ public class JoueurLowatemTest {
               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
              n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              """;
+    
+    final String PLATEAU_NIVEAU7
+            = """
+                 A   B   C   D   E   F   G   H   I   J   K   L   M   N 
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              a|SR1|SR4|   |   |   |   |   |   |SR2|   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              b|   |   |   |SN4|   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              c|SR4|   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              d|   |   |   |   |   |   |   |   |   |   |SN4|   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              e|   |   |   |   |   |SN4|   |SN6|   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              f|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              g|   |   |   |   |SR4|   |   |   |   |   |SR4|   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              h|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+E--+---+
+              i|   |   |   |   |   |   |   |   |   |   |SN2|   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+E--+E--+E--+
+              j|SN4|SN2|   |   |   |   |   |SN4|   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+E--+E--+E--+E--+
+              k|   |   |   |   |   |   |SR2|SR4|   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+E--+---+---+---+
+              l|   |   |SN1|   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              m|   |   |   |   |   |   |SR6|   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               """;
     
 

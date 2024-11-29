@@ -14,6 +14,9 @@ public class Utils {
      * Indice de la dernière COLONNE.
      */
     public final static int NUM_COLONNE_MAX = 13;
+    
+    public final static char CAR_TERRE = 'T';
+    public final static char CAR_EAU = 'E';
 
     /**
      * Construit un plateau à partir de sa représentation sour forme texte,
