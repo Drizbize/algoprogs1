@@ -333,6 +333,43 @@ public class JoueurLowatemTest {
         //nNDaN,72,76
         assertFalse(actionsPossiblesNoir.contient("nNDaN,72,76"));
     }
+    
+    @Test
+    public void testActionsPossible_niveau9()
+    {
+        JoueurLowatem joueur = new JoueurLowatem();
+        // un plateau sur lequel on veut tester actionsPossibles()
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU9);
+        
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'R', 9);
+        ActionsPossibles actionsPossiblesRouge = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'N', 9);
+        ActionsPossibles actionsPossiblesNoir = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesRouge.afficher();
+        System.out.println("------------------------------------");
+        actionsPossiblesNoir.afficher();
+        
+        //bKDbJ,51,51 bKDaK,51,51 nEDaE,48,51
+        assertTrue(actionsPossiblesRouge.contient("bKDbJ,51,51"));
+        assertTrue(actionsPossiblesRouge.contient("bKDaK,51,51"));
+        assertTrue(actionsPossiblesRouge.contient("nEDaE,48,51"));
+        
+        //bKDbL,51,51
+        assertFalse(actionsPossiblesRouge.contient("bKDbL,51,51"));
+        
+        //aLDaK,51,51 aLDaJ,51,50 bHDlH,51,47 hMDnM,51,49
+        assertTrue(actionsPossiblesNoir.contient("aLDaK,51,51"));
+        assertTrue(actionsPossiblesNoir.contient("aLDaJ,51,50"));
+        assertTrue(actionsPossiblesNoir.contient("bHDlH,51,47"));
+        assertTrue(actionsPossiblesNoir.contient("hMDnM,51,49"));
+        
+        //aLDaM,51,51 aLDaJ,51,51 bHDlH,51,48
+        assertFalse(actionsPossiblesNoir.contient("aLDaM,51,51"));
+        assertFalse(actionsPossiblesNoir.contient("aLDaJ,51,51"));
+        assertFalse(actionsPossiblesNoir.contient("bHDlH,51,48"));
+    }
 
     @Test
     public void testAjoutDeplDepuis() {
@@ -670,6 +707,40 @@ public class JoueurLowatemTest {
               m|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               n|   |SN8|   |   |   |   |   |   |   |   |   |   |   |SN9|
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              """;
+    
+    final String PLATEAU_NIVEAU9
+            = """
+                 A   B   C   D   E   F   G   H   I   J   K   L   M   N 
+               +---+---+---+---+---+---+---+---+---+E--+E--+E--+---+---+
+              a|   |   |   |SN6|   |   |   |SR9|   |   |   |NN3|   |   |bKDbJ,51,51 bKDaK,51,51 nEDaE,48,51
+               +---+---+---+---+---+---+---+---+---+E--+E--+---+---+---+bKDbL,51,51
+              b|   |   |   |   |   |   |   |LN5|   |   |NR3|   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+aLDaK,51,51 aLDaJ,51,50 bHDlH,51,47 hMDnM,51,49
+              c|   |SN5|   |   |   |   |   |   |   |   |   |   |   |   |aLDaM,51,51 aLDaJ,51,51 bHDlH,51,48
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              d|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              e|   |   |   |   |   |   |   |   |   |   |   |   |   |CR2|
+               +---+---+---+---+---+---+---+---+---+---+---+---+E--+---+
+              f|   |   |LR5|   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              g|   |   |CN2|   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              h|   |   |   |   |   |SR6|   |SN6|   |   |   |   |LN8|SR6|
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              i|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              j|SN9|   |   |   |   |   |   |SN7|   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              k|   |   |   |   |   |   |   |   |SR5|   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              l|   |   |   |   |   |   |LR8|   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              m|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              n|   |   |   |   |SR7|   |   |   |   |   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               """;
     

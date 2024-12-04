@@ -39,6 +39,40 @@ public class Utils {
         
         return can;
     }
+    
+    static int getAttackedDamage(char typeUnit)
+    {
+        return switch (typeUnit) {
+            case Case.CAR_SOLDATS -> 4;
+            case CAR_TANK -> 8;
+            case CAR_LANCE_MISSILES -> 6;
+            case CAR_PLANE, CAR_BATTLE_SHIP -> 7;
+            default -> 0;
+        };
+    }
+    
+    static int getAttackerDamage(char typeUnit)
+    {
+        return switch (typeUnit) {
+            case Case.CAR_SOLDATS -> 2;
+            case CAR_TANK -> 3;
+            case CAR_LANCE_MISSILES -> 3;
+            case CAR_PLANE, CAR_BATTLE_SHIP -> 2;
+            default -> 0;
+        };
+    }
+    
+    static double getStepDamageCoef(char typeUnit)
+    {
+        return switch (typeUnit) {
+            case Case.CAR_SOLDATS -> 0.3;
+            case CAR_TANK -> 0.7;
+            case CAR_LANCE_MISSILES -> 0.4;
+            case CAR_PLANE -> 0.7;
+            case CAR_BATTLE_SHIP -> 0.6;
+            default -> 0;
+        };
+    }
 
     /**
      * Construit un plateau à partir de sa représentation sour forme texte,

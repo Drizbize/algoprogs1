@@ -118,13 +118,13 @@ public class JoueurLowatem implements IJoueurLowatem {
             steps++;
             
             Case unite = plateau[dst.ligne][dst.colonne];
-            if (unite.nature == Utils.CAR_EAU) // !Utils.canGo(origUnit.typeUnite, unite.nature)
+            if (!Utils.canGo(origUnit.typeUnite, unite.nature)) // 
             {
                 isRunning = false;
             }
             else if (!unite.unitePresente())
             {
-                int currHealth = getStepHealth(steps, origUnit.pointsDeVie);
+                int currHealth = getStepHealth(steps, origUnit.pointsDeVie, origUnit.typeUnite);
                 if (currHealth > 0)
                 {
                     NbPointsDeVie newTotalHealth = new NbPointsDeVie(nbPv);
@@ -179,7 +179,7 @@ public class JoueurLowatem implements IJoueurLowatem {
         oldHealths.nbPvRouge = origUnit.couleurUnite == Case.CAR_ROUGE ? origUnit.pointsDeVie : attackUnit.pointsDeVie;
         oldHealths.nbPvNoir = origUnit.couleurUnite == Case.CAR_NOIR ? origUnit.pointsDeVie : attackUnit.pointsDeVie;
 
-        NbPointsDeVie healths = getAttackedHealth(origUnit.pointsDeVie, attackUnit.pointsDeVie, origUnit.couleurUnite);
+        NbPointsDeVie healths = getAttackedHealth(origUnit.pointsDeVie, attackUnit.pointsDeVie, origUnit);
 
         NbPointsDeVie newTotalHealth = new NbPointsDeVie();
         newTotalHealth.nbPvRouge = totalHP.nbPvRouge - (oldHealths.nbPvRouge - healths.nbPvRouge);
@@ -188,10 +188,10 @@ public class JoueurLowatem implements IJoueurLowatem {
         return newTotalHealth;
     }
     
-    static NbPointsDeVie getAttackedHealth(int oldPvAttacker, int oldPvAttack, char attackerColor)
+    static NbPointsDeVie getAttackedHealth(int oldPvAttacker, int oldPvAttack, Case unit)
     {   
-        int resultAttacker = oldPvAttacker - 2 - (int)((oldPvAttack - 5) / 2);
-        int resultAttack = oldPvAttack - 4 - (int)((oldPvAttacker - 5) / 2); // 3 - 4 + 1
+        int resultAttacker = oldPvAttacker - Utils.getAttackerDamage(unit.typeUnite) - (int)((oldPvAttack - 5) / 2);
+        int resultAttack = oldPvAttack - Utils.getAttackedDamage(unit.typeUnite) - (int)((oldPvAttacker - 5) / 2); // 3 - 4 + 1
         
         if (resultAttacker < 0)
             resultAttacker = 0;
@@ -201,15 +201,15 @@ public class JoueurLowatem implements IJoueurLowatem {
         
         NbPointsDeVie nbPv = new NbPointsDeVie();
         
-        nbPv.nbPvRouge = attackerColor == Case.CAR_ROUGE ? resultAttacker : resultAttack;
-        nbPv.nbPvNoir = attackerColor == Case.CAR_NOIR ? resultAttacker : resultAttack;
+        nbPv.nbPvRouge = unit.couleurUnite == Case.CAR_ROUGE ? resultAttacker : resultAttack;
+        nbPv.nbPvNoir = unit.couleurUnite == Case.CAR_NOIR ? resultAttacker : resultAttack;
         
         return nbPv;
     }
     
-    static int getStepHealth(int step, int origHealth)
+    static int getStepHealth(int step, int origHealth, char typeUnit)
     {
-        return origHealth - (int)(0.3 * step);
+        return origHealth - (int)(Utils.getStepDamageCoef(typeUnit) * step);
     }
 
     /**
