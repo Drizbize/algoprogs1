@@ -108,6 +108,7 @@ public class JoueurLowatem implements IJoueurLowatem {
      * initial
      */
     void ajoutDeplDansDirection(Case[][] plateau, Direction dir, Coordonnees src, ActionsPossibles actions, NbPointsDeVie nbPv) {
+        Case origUnit = plateau[src.ligne][src.colonne];
         Coordonnees dst = src.suivantes(dir);
         
         int steps = 0;
@@ -117,14 +118,37 @@ public class JoueurLowatem implements IJoueurLowatem {
             steps++;
             
             Case unite = plateau[dst.ligne][dst.colonne];
-            if (unite.nature == Utils.CAR_EAU)
+            if (unite.nature == Utils.CAR_EAU) // !Utils.canGo(origUnit.typeUnite, unite.nature)
             {
                 isRunning = false;
             }
             else if (!unite.unitePresente())
             {
-                ajoutDepl(src, dst, actions, nbPv);
-                checkAddAttack(plateau, src, dst, actions, nbPv);
+                int currHealth = getStepHealth(steps, origUnit.pointsDeVie);
+                if (currHealth > 0)
+                {
+                    NbPointsDeVie newTotalHealth = new NbPointsDeVie(nbPv);
+                    int origHealth = origUnit.pointsDeVie;
+                    
+                    if (origUnit.couleurUnite == Case.CAR_ROUGE)
+                    {
+                        newTotalHealth.nbPvRouge = (nbPv.nbPvRouge - origUnit.pointsDeVie) + currHealth;
+                    }
+                    else
+                    {
+                        newTotalHealth.nbPvNoir = (nbPv.nbPvNoir - origUnit.pointsDeVie) + currHealth;
+                    }
+                    
+                    origUnit.pointsDeVie = currHealth;
+                    ajoutDepl(src, dst, actions, newTotalHealth);
+                    checkAddAttack(plateau, src, dst, actions, newTotalHealth);
+                    
+                    origUnit.pointsDeVie = origHealth;
+                }
+                else
+                {
+                    isRunning = false;
+                }
             }
             
             dst = dst.suivantes(dir);
@@ -198,7 +222,6 @@ public class JoueurLowatem implements IJoueurLowatem {
      * initial
      */
     void ajoutDepl(Coordonnees src, Coordonnees dst, ActionsPossibles actions, NbPointsDeVie nbPv) {
-        
         actions.ajouterAction(chaineActionDepl(src, dst, nbPv));
     }
 

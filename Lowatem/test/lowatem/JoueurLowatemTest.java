@@ -1,5 +1,6 @@
 package lowatem;
 
+import static lowatem.JoueurLowatem.getStepHealth;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -211,7 +212,7 @@ public class JoueurLowatemTest {
     }
     
     public String getDirection(String diraction, Case[][] plateau, NbPointsDeVie totalHP)
-    {
+    {        
         String result;
         
         if (diraction.length() == 8)
@@ -295,6 +296,42 @@ public class JoueurLowatemTest {
         assertFalse(actionsPossiblesNoir.contient(getDirection("dKDnK", plateau, totalHP)));
         assertFalse(actionsPossiblesNoir.contient(getDirection("jHDjL", plateau, totalHP)));
         assertFalse(actionsPossiblesNoir.contient(getDirection("jHDjN", plateau, totalHP)));
+    }
+    
+    @Test
+    public void testActionsPossible_niveau8()
+    {
+        JoueurLowatem joueur = new JoueurLowatem();
+        // un plateau sur lequel on veut tester actionsPossibles()
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU8);
+        
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'R', 8);
+        ActionsPossibles actionsPossiblesRouge = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'N', 8);
+        ActionsPossibles actionsPossiblesNoir = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesRouge.afficher();
+        System.out.println("------------------------------------");
+        actionsPossiblesNoir.afficher();
+        
+        //aIDnI,73,76 aIDkI,69,76 aIDkIAkJ,65,72
+        assertTrue(actionsPossiblesRouge.contient("aIDnI,69,76"));
+        assertTrue(actionsPossiblesRouge.contient("aIDkI,69,76"));
+        assertTrue(actionsPossiblesRouge.contient("aIDkIAkJ,65,72"));
+        
+        //aIDnI,72,76 aIDnE,72,76 aIDkIAkJ,69,72
+        assertFalse(actionsPossiblesRouge.contient("aIDnI,72,76"));
+        assertFalse(actionsPossiblesRouge.contient("aIDnE,72,76"));
+        assertFalse(actionsPossiblesRouge.contient("aIDkIAkJ,69,72"));
+        
+        //nNDaN,72,73 gADgMAgL,68,69 gADgM,72,73
+        assertTrue(actionsPossiblesNoir.contient("nNDaN,72,73"));
+        assertTrue(actionsPossiblesNoir.contient("gADgM,72,73"));
+        assertTrue(actionsPossiblesNoir.contient("gADgMAgL,68,69"));
+        
+        //nNDaN,72,76
+        assertFalse(actionsPossiblesNoir.contient("nNDaN,72,76"));
     }
 
     @Test
@@ -599,6 +636,40 @@ public class JoueurLowatemTest {
               m|   |   |   |   |   |   |SR6|   |   |   |   |   |   |   |
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              """;
+    
+    final String PLATEAU_NIVEAU8
+            = """
+                 A   B   C   D   E   F   G   H   I   J   K   L   M   N 
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              a|   |   |   |   |   |   |   |   |SR9|   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              b|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              c|   |   |   |   |   |   |   |   |   |   |   |   |SR9|   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              d|   |SN9|   |   |   |   |   |   |SR8|   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              e|   |   |   |SN9|   |   |   |   |   |SN9|   |SR9|   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              f|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              g|SN9|   |   |   |   |   |   |   |   |   |   |SR9|   |   |
+               +E--+---+E--+E--+---+---+---+---+---+---+---+---+---+---+
+              h|   |   |   |   |   |   |   |   |   |SR9|   |   |   |   |
+               +---+E--+E--+E--+---+---+---+---+---+---+---+---+---+---+
+              i|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              j|SR1|   |SN5|   |   |   |   |   |   |   |SR9|   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              k|   |   |SN9|   |   |   |   |   |   |SN9|   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              l|   |   |   |   |SR9|   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              m|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              n|   |SN8|   |   |   |   |   |   |   |   |   |   |   |SN9|
                +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
               """;
     

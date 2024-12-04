@@ -15,8 +15,30 @@ public class Utils {
      */
     public final static int NUM_COLONNE_MAX = 13;
     
-    public final static char CAR_TERRE = 'T';
+    // type unites
+    public final static char CAR_TANK = 'C';
+    public final static char CAR_LANCE_MISSILES = 'L';
+    public final static char CAR_PLANE = 'A';
+    public final static char CAR_BATTLE_SHIP = 'N';
+    
+    
     public final static char CAR_EAU = 'E';
+    
+    static boolean canGo(char typeUnit, char nature)
+    {
+        boolean can = true;
+        
+        switch (typeUnit) {
+            case Case.CAR_SOLDATS, CAR_TANK, CAR_LANCE_MISSILES -> {
+                can = nature == Case.CAR_TERRE;
+            }
+            case CAR_BATTLE_SHIP -> {
+                can = nature == CAR_EAU;
+            }
+        }
+        
+        return can;
+    }
 
     /**
      * Construit un plateau à partir de sa représentation sour forme texte,
