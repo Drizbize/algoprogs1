@@ -24,6 +24,8 @@ public class Utils {
     
     public final static char CAR_EAU = 'E';
     
+    public final static int FIREWAVE_DAMAGE = 9;
+    
     static boolean canGo(char typeUnit, char nature)
     {
         boolean can = true;
@@ -71,6 +73,30 @@ public class Utils {
             case CAR_PLANE -> 0.7;
             case CAR_BATTLE_SHIP -> 0.6;
             default -> 0;
+        };
+    }
+    
+    static int getAttackSteps(char typeUnit)
+    {
+        return switch (typeUnit)
+        {
+            case Case.CAR_SOLDATS -> 1;
+            case CAR_TANK -> 4;
+            case CAR_LANCE_MISSILES -> 8;
+            case CAR_PLANE -> 2;
+            case CAR_BATTLE_SHIP -> 3;
+            default -> 0;
+        };
+    }
+    
+    static Direction turnClockwise(Direction dir)
+    {
+        return switch (dir)
+        {
+            case Direction.NORD -> Direction.OUEST;
+            case Direction.OUEST -> Direction.SUD;
+            case Direction.SUD -> Direction.EST;
+            case Direction.EST -> Direction.NORD;
         };
     }
 

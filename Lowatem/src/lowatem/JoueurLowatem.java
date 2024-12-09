@@ -3,6 +3,10 @@ package lowatem;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
+import static lowatem.Direction.EST;
+import static lowatem.Direction.NORD;
+import static lowatem.Direction.OUEST;
+import static lowatem.Direction.SUD;
 
 /**
  * Joueur implémentant les actions possibles à partir d'un plateau, pour un
@@ -34,6 +38,8 @@ public class JoueurLowatem implements IJoueurLowatem {
         
         NbPointsDeVie nbPv = nbPointsDeVie(plateau);
         
+        actionFireWalls(plateau, actions);
+        
         for (int y = 0; y < plateau.length; y++)
         {
             for (int x = 0; x < plateau[y].length; x++)
@@ -48,8 +54,115 @@ public class JoueurLowatem implements IJoueurLowatem {
             }
         }
         
+        
+        
         System.out.println("actionsPossibles : fin");
         return actions.nettoyer();
+    }
+    
+    void actionFireWalls(Case[][] plateau, ActionsPossibles actions)
+    {
+        addActionFireWall(plateau, Direction.EST, actions);
+        addActionFireWall(plateau, Direction.NORD, actions);
+        addActionFireWall(plateau, Direction.OUEST, actions);
+        addActionFireWall(plateau, Direction.SUD, actions); //FS,24,15
+    }
+    
+    void addActionFireWall(Case[][] plateau, Direction dir, ActionsPossibles actions)
+    {
+        Case[][] newPlateau = clonePlateau(plateau);
+        
+        boolean isStop;
+        switch (dir) {
+            case Direction.NORD, Direction.SUD -> {
+                for (int x = 0; x < newPlateau[0].length; x++) {
+                    isStop = false;
+                    int y = switch (dir) {
+                        case NORD -> 0;
+                        case SUD -> newPlateau.length - 1;
+                        default -> 0;
+                    };
+                    
+                    int damage = Utils.FIREWAVE_DAMAGE;
+                    
+                    while ((y < newPlateau.length && y >= 0) && !isStop && damage > 0)
+                    {
+                        Case unit = newPlateau[y][x];
+                        
+                        if (unit.unitePresente())
+                        {
+                            unit.pointsDeVie = Math.max(unit.pointsDeVie - damage, 0);
+                            isStop = true;
+                        }
+                        else
+                        {
+                            damage--;
+                            switch (dir) {
+                                case NORD -> y++;
+                                case SUD -> y--;
+                            }
+                        }
+                    }
+                }
+            }
+            case Direction.EST, Direction.OUEST -> {
+                for (int y = 0; y < newPlateau.length; y++) {
+                    isStop = false;
+                    int x = switch (dir) {
+                        case OUEST -> 0;
+                        case EST -> newPlateau[y].length - 1;
+                        default -> 0;
+                    };
+                    
+                    int damage = Utils.FIREWAVE_DAMAGE;
+                    
+                    while ((x < newPlateau[y].length && x >= 0) && !isStop && damage > 0)
+                    {
+                        Case unit = newPlateau[y][x];
+                        
+                        if (unit.unitePresente())
+                        {
+                            unit.pointsDeVie = Math.max(unit.pointsDeVie - damage, 0);
+                            isStop = true;
+                        }
+                        else
+                        {
+                            damage--;
+                            switch (dir) {
+                                case OUEST -> x++;
+                                case EST -> x--;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        NbPointsDeVie totalHP = nbPointsDeVie(newPlateau);
+        
+        addFireAction(dir, actions, totalHP);
+    }
+    
+    static Case[][] clonePlateau(Case[][] plateau)
+    {
+        Case[][] newPlateau = new Case[plateau.length][plateau[0].length];
+        for (int y = 0; y < newPlateau.length; y++)
+        {
+            newPlateau[y] = new Case[plateau[y].length];
+            for (int x = 0; x < newPlateau[y].length; x++)
+            {
+                Case origCase = plateau[y][x];
+                newPlateau[y][x] = new Case(
+                        origCase.typeUnite,
+                        origCase.couleurUnite,
+                        origCase.pointsDeVie,
+                        origCase.altitude,
+                        origCase.nature
+                );
+            }
+        }
+        
+        return newPlateau;
     }
 
     /**
@@ -118,7 +231,7 @@ public class JoueurLowatem implements IJoueurLowatem {
             steps++;
             
             Case unite = plateau[dst.ligne][dst.colonne];
-            if (!Utils.canGo(origUnit.typeUnite, unite.nature)) // 
+            if (!Utils.canGo(origUnit.typeUnite, unite.nature))
             {
                 isRunning = false;
             }
@@ -160,15 +273,43 @@ public class JoueurLowatem implements IJoueurLowatem {
         Case origUnit = plateau[src.ligne][src.colonne];
         for (Direction attackDir : Direction.toutes())
         {
-            Coordonnees nearby = dst.suivantes(attackDir);
-            if (nearby.estDansPlateau())
+            int steps = 0;
+            int maxSteps = Utils.getAttackSteps(origUnit.typeUnite);
+            
+            //TODO: change to recursive function
+            Coordonnees forwardPos = new Coordonnees(dst.ligne, dst.colonne);
+            while (steps < maxSteps)
             {
-                Case uniteNear = plateau[nearby.ligne][nearby.colonne];
-                if (uniteNear.unitePresente() && uniteNear.couleurUnite != origUnit.couleurUnite)
+                steps++;
+                
+                forwardPos = forwardPos.suivantes(attackDir);
+                checkAddAttackAt(plateau, src, dst, forwardPos, actions, nbPv);
+                
+                Direction turnDir = Utils.turnClockwise(attackDir);
+                Coordonnees turnedPos = new Coordonnees(forwardPos.ligne, forwardPos.colonne);
+                
+                int turnedSteps = steps;
+                while (turnedSteps < maxSteps)
                 {
-                    NbPointsDeVie newTotalHealth = getNewTotalHealth(origUnit, uniteNear, nbPv);
-                    actions.ajouterAction(chaineActionAttack(src, dst, nearby, newTotalHealth));
+                    turnedSteps++;
+                    
+                    turnedPos = turnedPos.suivantes(turnDir);
+                    checkAddAttackAt(plateau, src, dst, turnedPos, actions, nbPv);
                 }
+            }            
+        }
+    }
+    
+    void checkAddAttackAt(Case[][] plateau, Coordonnees src, Coordonnees dst, Coordonnees attackPos, ActionsPossibles actions, NbPointsDeVie nbPv)
+    {
+        Case origUnit = plateau[src.ligne][src.colonne];
+        if (attackPos.estDansPlateau())
+        {
+            Case uniteNear = plateau[attackPos.ligne][attackPos.colonne];
+            if (uniteNear.unitePresente() && uniteNear.couleurUnite != origUnit.couleurUnite)
+            {
+                NbPointsDeVie newTotalHealth = getNewTotalHealth(origUnit, uniteNear, nbPv);
+                actions.ajouterAction(chaineActionAttack(src, dst, attackPos, newTotalHealth));
             }
         }
     }
@@ -245,5 +386,20 @@ public class JoueurLowatem implements IJoueurLowatem {
                 + "D" + dst.carLigne() + dst.carColonne()
                 + 'A' + attackPos.carLigne() + attackPos.carColonne()
                 + "," + nbPv.nbPvRouge + "," + nbPv.nbPvNoir;
+    }
+    
+    static void addFireAction(Direction dir, ActionsPossibles actions, NbPointsDeVie nbPv)
+    {
+        actions.ajouterAction(
+            "F" +
+            switch (dir)
+            {
+                case Direction.EST -> 'E';
+                case Direction.NORD -> 'N';
+                case Direction.OUEST -> 'O';
+                case Direction.SUD -> 'S';
+                default -> ' ';
+            } + ',' + nbPv.nbPvRouge + ',' + nbPv.nbPvNoir
+        );
     }
 }
