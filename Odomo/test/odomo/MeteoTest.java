@@ -606,6 +606,16 @@ public class MeteoTest {
         double[] tab5 = {};
         assertEquals(0., Meteo.valeurMax(tab5), precision);
     }
+    
+    @Test
+    public void testValeurMin() {
+        double precision = 0.01;
+        assertEquals(4., Meteo.valeurMin(new double[]{5.5, 4., 10., 6.}), precision);
+        assertEquals(-9., Meteo.valeurMin(new double[]{-6., -9., 0., -.2}), precision);
+        assertEquals(-12., Meteo.valeurMin(new double[]{-6., -9., -12., -6.3}), precision);
+        assertEquals(3., Meteo.valeurMin(new double[]{3.}), precision);
+        assertEquals(0., Meteo.valeurMin(new double[]{}), precision);
+    }
 
     @Test
     public void testAleatoire() {

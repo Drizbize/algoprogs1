@@ -460,7 +460,19 @@ class Meteo {
      */
     static boolean[][] matricePluvioHeure() {
         boolean[][] matricePluvio = new boolean[8][24];
-        // ...
+        
+        for (int col = 0; col < matricePluvio[0].length; col++)
+        {
+            int nbCase = 0;
+            
+            if (pluvioHeure[matricePluvio[0].length - 1 - col] != 0)
+            {
+                nbCase = matricePluvio.length - Ecran.numLigne(pluvioHeure[matricePluvio[0].length - 1 - col], 0, valeurMax(pluvioHeure));
+            }
+            
+            allumerNbCasesDuBas(matricePluvio, col, nbCase);
+        }
+        
         return matricePluvio;
     }
 
@@ -471,7 +483,21 @@ class Meteo {
      */
     static boolean[][] matriceTemperMinutes() {
         boolean[][] matriceTemper = new boolean[8][24];
-        // ...
+        
+        double min = valeurMin(temperExtMinMinute);
+        double max = valeurMax(temperExtMaxMinute);
+        
+        for (int col = 0; col < matriceTemper[0].length; col++)
+        {
+            double valMin = valeurMin(tableauDepuisIndices(temperExtMinMinute, agreger60vers24(col)));
+            double valMax = valeurMax(tableauDepuisIndices(temperExtMaxMinute, agreger60vers24(col)));
+            
+            int bas = Ecran.numLigne(valMin, min, max);
+            int haut = Ecran.numLigne(valMax, min, max);
+            
+            allumerNbCasesIntervalle(matriceTemper, col, bas, haut);
+        }
+        
         return matriceTemper;
     }
 
@@ -481,7 +507,31 @@ class Meteo {
      * @return ensemble d'indices des 60 valeurs correspondantes
      */
     static int[] agreger60vers24(int col) {
-        return null;
+        int num = 60;
+        for (int i = 0; i <= col; i++) {
+            if (i % 2 == 0) {
+                num -= 2;
+            }
+            else {
+                num -= 3;
+            }
+        }
+        
+        if (col % 2 == 0) {
+            return new int[]{num, num + 1};
+        }
+        else {
+            return new int[]{num, num + 1, num + 2};
+        }
+        
+        /*
+        num = 59 - col * 2 - (col / 2)
+        if (pair)
+        {
+            {num - 1, num}
+        }
+        else {num - 2, num - 1, num}
+        */
     }
 
     /**
@@ -492,7 +542,14 @@ class Meteo {
      * @return tableau de valeurs extraites
      */
     static double[] tableauDepuisIndices(double[] tab, int[] indices) {
-        return null;
+        double nums[] = new double[indices.length];
+        
+        for (int i = 0; i < indices.length; i++)
+        {
+            nums[i] = tab[indices[i]];
+        }
+        
+        return nums;
     }
 
     /**
@@ -504,6 +561,10 @@ class Meteo {
      * @param nbCases le nombre de cases à allumer dans cette colonne
      */
     static void allumerNbCasesDuBas(boolean[][] matrice, int colonne, int nbCases) {
+        for (int y = 0; y < matrice.length; y++)
+        {
+            matrice[y][colonne] = y >= matrice.length - nbCases;
+        }
     }
     
     /**
@@ -516,8 +577,11 @@ class Meteo {
      * @param ligneBas le numéro de la ligne du bas à allumer
      * @param ligneHaut le numéro de la ligne du haut à allumer
      */
-    static void allumerNbCasesIntervalle(boolean[][] matrice, int colonne,
-            int ligneBas, int ligneHaut) {
+    static void allumerNbCasesIntervalle(boolean[][] matrice, int colonne, int ligneBas, int ligneHaut) {
+        for (int ligne = 0; ligne < matrice.length; ligne++)
+        {
+            matrice[ligne][colonne] = (ligne >= ligneHaut && ligne <= ligneBas);
+        }
     }
 
     /**
@@ -547,7 +611,16 @@ class Meteo {
      * @return la valeur minimale du tableau, ou 0 s'il est vide.
      */
     static double valeurMin(double[] tab) {
-        return 12.;
+        if (tab.length == 0)
+            return 0;
+        
+        double min = tab[0];
+        for (double num : tab) {
+            if (num < min)
+                min = num;
+        }
+        
+        return min;
     }
 
     /**

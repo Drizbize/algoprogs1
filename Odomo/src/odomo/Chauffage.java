@@ -1,4 +1,5 @@
 package odomo;
+import java.util.Scanner;
 
 /**
  * Gestion de la partie Chauffage.
@@ -14,11 +15,32 @@ class Chauffage {
      */
     static int[][] creneau2;
     
+    static double temperEco;
+    static double temperNormal;
+    
     /**
      * Initialiser les données de chauffage.
      */
     static void initialiser() {
+        creneau1 = new int[7][2];
+        creneau2 = new int[7][2];
+        
+        initCreneau(creneau1);
+        initCreneau(creneau2);
+        
+        temperEco = 35;
+        temperNormal = 45;
     }
+    
+    static void initCreneau(int[][] creneau)
+    {
+        for (int[] creneau3 : creneau) {
+            for (int x = 0; x < creneau3.length; x++) {
+                creneau3[x] = -1;
+            }
+        }
+    }
+            
 
     /**
      * Matrice des créneaux en mode normal, pour l'histogramme.
@@ -27,6 +49,15 @@ class Chauffage {
      */
     static boolean[][] matriceCreneaux() {
         boolean[][] matrice = new boolean[8][24];
+        
+        for (int y = 0; y < (matrice.length - 1); y++)
+        {
+            for (int x = 0; x < matrice[y].length; x++)
+            {
+                matrice[y][x] = ((creneau1[y][0] <= x && x <= creneau1[y][1]) || (creneau2[y][0] <= x && x <= creneau2[y][1]));
+            }
+        }
+        
         return matrice;
     }
     
@@ -34,6 +65,12 @@ class Chauffage {
      * Procédure de saisie des créneaux de chauffage.
      */
     static void saisieCreneaux() {
+        Scanner scn = new Scanner(System.in);
+        
+        do
+        {
+            System.out.println("Saisie creneaux:");
+        } while (!traitementSaisieCreneaux(scn.nextLine()));
     }
 
     

@@ -14,8 +14,8 @@ class Ecran {
     static final String ECRAN_VIDE
         = """
           +----------------+-------------------------------------------------------------+
-          |HH:mm    JJ/MM  | Mode : MODEMODEMODE                                         |
-          |                |                                                             |
+          |HH:mm    JJ/MM  | Mode : MODEMODEMODE                             CHAUFFEAGE1 |
+          |                |                                                 CHAUFFEAGE2 |
           |intérieur :     |                                                             |
           | ttttt°C        |                                                             |
           |    yy% hygro   |                                                             |
@@ -73,7 +73,6 @@ class Ecran {
     static void ecranPrincipal() {
         System.out.println(insererDonnees(ECRAN_VIDE));
     }
-
     /**
      * Insère toutes les données sur l'écran.
      *
@@ -86,7 +85,22 @@ class Ecran {
         insererMeteoImmediate(ecran);
         insererMode(ecran);
         insererDonneesHistogramme(ecran);
+        insererChauffageTemp(ecran);
         return ecran.toString();
+    }
+    
+    static void insererChauffageTemp(StringBuilder ecran)
+    {
+        if (Odomo.mode == Odomo.MODE_CHAUFFAGE || Odomo.mode == Odomo.MODE_SAISIE_CHAUFFAGE)
+        {
+            remplacerMotif("CHAUFFEAGE1", "Eco: " + Chauffage.temperEco + " d", ecran, true);
+            remplacerMotif("CHAUFFEAGE2", "Norm:" + Chauffage.temperNormal + " d", ecran, true);
+        }
+        else
+        {
+            remplacerMotif("CHAUFFEAGE1", "           ", ecran, true);
+            remplacerMotif("CHAUFFEAGE2", "           ", ecran, true);
+        }
     }
 
     /**
@@ -203,6 +217,12 @@ class Ecran {
 
     static String titreHisto() {
         String titre = "";
+        
+        if (typeHisto == TYPE_HISTO_PLUVIO_HEURE)
+        {
+            titre = "Pluviométrie des 24 dernières heures :";
+        }
+        
         return titre;
     }
 
@@ -297,6 +317,17 @@ class Ecran {
                 case 0 -> valeur = valuerMax;
                 case 4 -> valeur = valuerMax / 2;
                 case 8 -> valeur = 0;
+            }
+        }
+        else
+        {
+            int valeurMax = (int)Meteo.valeurMax(Meteo.temperExtMaxMinute);
+            int valeurMin = (int)Meteo.valeurMin(Meteo.temperExtMinMinute);
+            switch (ligne)
+            {
+                case 0 -> valeur = valeurMax;
+                case 4 -> valeur = (valeurMax + valeurMin) / 2;
+                case 8 -> valeur = valeurMin;
             }
         }
         
