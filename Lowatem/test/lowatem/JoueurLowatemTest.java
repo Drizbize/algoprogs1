@@ -22,7 +22,7 @@ public class JoueurLowatemTest {
         //testActionsPossibles_niveau2();
         //testActionsPossibles_niveau3();
         //testActionsPossibles_niveau4();
-        testActionsPossibles_niveau5();
+        //testActionsPossibles_niveau5();
     }
 
     /**
@@ -435,6 +435,40 @@ public class JoueurLowatemTest {
         assertTrue(actionsPossiblesNoir.contient("FN,22,18"));
         assertTrue(actionsPossiblesNoir.contient("FO,23,17"));
         assertTrue(actionsPossiblesNoir.contient("FS,18,22"));
+    }
+    
+    @Test
+    public void testActionsPossible_niveau12()
+    {
+        JoueurLowatem joueur = new JoueurLowatem();
+        // un plateau sur lequel on veut tester actionsPossibles()
+        Case[][] plateau = Utils.plateauDepuisTexte(PLATEAU_NIVEAU12);
+        
+        String[] actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'R', 12);
+        ActionsPossibles actionsPossiblesRouge = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesDepuisPlateau = joueur.actionsPossibles(plateau, 'N', 12);
+        ActionsPossibles actionsPossiblesNoir = new ActionsPossibles(actionsPossiblesDepuisPlateau);
+        
+        actionsPossiblesRouge.afficher();
+        System.out.println("------------------------------------");
+        actionsPossiblesNoir.afficher();
+        
+        //cIDcK,14,15 iLDiM,15,15 iLDiJ,15,15
+        assertTrue(actionsPossiblesRouge.contient("cIDcK,14,15"));
+        assertTrue(actionsPossiblesRouge.contient("iLDiM,15,15"));
+        assertTrue(actionsPossiblesRouge.contient("iLDiJ,15,15"));
+        
+        //cIDcL,14,15 iLDiN,15,15
+        assertFalse(actionsPossiblesRouge.contient("cIDcL,14,15"));
+        assertFalse(actionsPossiblesRouge.contient("iLDiN,15,15"));
+        
+        //dKDdM,15,14 dKDdN,15,13
+        assertTrue(actionsPossiblesNoir.contient("dKDdM,15,14"));
+        assertTrue(actionsPossiblesNoir.contient("dKDdN,15,13"));
+        
+        //dKDdN,15,14
+        assertFalse(actionsPossiblesNoir.contient("dKDdN,15,14"));
     }
 
     @Test
@@ -877,6 +911,40 @@ public class JoueurLowatemTest {
                  n|   |   |   |   |   |AN4|   |   |   |   |   |   |   |   |
                   +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
                  """;
+    
+    final String PLATEAU_NIVEAU12
+            = """
+                 A   B   C   D   E   F   G   H   I   J   K   L   M   N 
+               +--5+--4+--2+--1+--1+--2+--3+--4+--5+--6+--5+--6+--6+--6+
+              a|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +--4+--3+--3+--2+--1+--2+--3+--3+--5+--5+--6+--5+--6+--6+
+              b|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +--4+--3+--3+--2+--1+--2+--3+--3+--3+--3+--4+--5+--6+--6+
+              c|   |   |   |   |AN2|   |   |   |AR2|   |   |   |   |   |
+               +--4+--3+--2+--2+--2+--3+--4+--4+--2+--3+--4+--6+--7+--7+
+              d|   |   |   |   |   |   |SN3|   |   |   |AN3|LN1|   |   |
+               +--3+--2+--1+--2+--2+--4+--4+--4+--4+--4+--4+--6+--8+--8+
+              e|AN1|   |AR1|   |   |   |   |   |   |   |   |   |   |   |
+               +--2+--1+--1+--2+--2+--4+--5+--5+--5+--5+--4+--5+--7+--9+
+              f|   |   |   |   |   |   |   |   |SR3|   |   |   |   |   |
+               +--2+--2+--2+--2+--2+--3+--4+--4+--4+--4+--5+--6+--8+--9+
+              g|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +--2+--1+--2+--2+--2+--3+--4+--3+--3+--4+--6+--8+--9+--9+
+              h|   |CN1|   |   |   |   |   |   |AN2|   |   |   |   |   |
+               +--2+--1+--1+--1+--2+--3+--4+--4+--3+--4+--5+--7+--9+--7+
+              i|   |   |   |   |   |   |   |   |   |   |   |LR1|   |   |
+               +--1+--1+--1+E--+--1+--2+--3+--3+--2+--2+--3+--5+--7+--6+
+              j|   |   |   |   |CR1|   |   |   |   |   |   |   |   |   |
+               +--3+--2+--1+E--+E--+--1+--1+--1+--1+--2+--2+--4+--6+--6+
+              k|   |   |CN1|   |   |   |   |   |   |   |   |   |CR1|   |
+               +--4+--3+--2+E--+E--+E--+E--+E--+--2+--3+--4+--5+--7+--6+
+              l|   |   |   |   |NR1|AR3|   |   |   |AR2|   |   |   |   |
+               +--5+--3+--1+E--+E--+E--+--1+--2+--3+--4+--4+--5+--8+--8+
+              m|   |   |   |   |NN1|   |   |   |   |   |   |   |   |   |
+               +--5+--3+--2+E--+E--+E--+--1+--3+--5+--5+--5+--6+--7+--8+
+              n|   |   |   |   |   |   |   |   |   |   |   |   |   |   |
+               +---+---+---+---+---+---+---+---+---+---+---+---+---+---+
+              """;
     
 
     final String PLATEAU_NB_PV

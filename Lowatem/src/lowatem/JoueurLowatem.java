@@ -54,21 +54,32 @@ public class JoueurLowatem implements IJoueurLowatem {
             }
         }
         
-        
-        
         System.out.println("actionsPossibles : fin");
         return actions.nettoyer();
     }
     
-    void actionFireWalls(Case[][] plateau, ActionsPossibles actions)
+    /**
+     * Function that add 4 actions of fire walls from each side of map
+     * @param plateau the map
+     * @param actions actions where to add
+     */
+    static void actionFireWalls(Case[][] plateau, ActionsPossibles actions)
     {
         addActionFireWall(plateau, Direction.EST, actions);
         addActionFireWall(plateau, Direction.NORD, actions);
         addActionFireWall(plateau, Direction.OUEST, actions);
-        addActionFireWall(plateau, Direction.SUD, actions); //FS,24,15
+        addActionFireWall(plateau, Direction.SUD, actions);
     }
     
-    void addActionFireWall(Case[][] plateau, Direction dir, ActionsPossibles actions)
+    //TODO: Rewrite this function, i don't like this function.
+    /**
+     * Adding an action fire wall from one side.
+     * At the end action FS,`totalRed`,`totalBlack` with new total red and black healthes
+     * @param plateau the map
+     * @param dir diraction from wave will start
+     * @param actions actions where to add
+     */
+    static void addActionFireWall(Case[][] plateau, Direction dir, ActionsPossibles actions)
     {
         Case[][] newPlateau = clonePlateau(plateau);
         
@@ -143,6 +154,11 @@ public class JoueurLowatem implements IJoueurLowatem {
         addFireAction(dir, actions, totalHP);
     }
     
+    /**
+     * Makes a copy of the map `plateau`
+     * @param plateau a map for copy
+     * @return a copy
+     */
     static Case[][] clonePlateau(Case[][] plateau)
     {
         Case[][] newPlateau = new Case[plateau.length][plateau[0].length];
@@ -213,6 +229,8 @@ public class JoueurLowatem implements IJoueurLowatem {
     /**
      * Ajouter tous les déplacements depuis une case donnée, dans une direction
      * donnée.
+     * 
+     * Also actions with attacks.
      *
      * @param dir direction à suivre
      * @param src coordonnées de la case d'origine
@@ -224,12 +242,9 @@ public class JoueurLowatem implements IJoueurLowatem {
         Case origUnit = plateau[src.ligne][src.colonne];
         Coordonnees dst = src.suivantes(dir);
         
-        int steps = 0;
         boolean isRunning = true;
         while (dst.estDansPlateau() && isRunning)
         {
-            steps++;
-            
             Case unite = plateau[dst.ligne][dst.colonne];
             if (!Utils.canGo(origUnit.typeUnite, unite.nature))
             {
@@ -237,18 +252,16 @@ public class JoueurLowatem implements IJoueurLowatem {
             }
             else if (!unite.unitePresente())
             {
-                int currHealth = getStepHealth(steps, origUnit.pointsDeVie, origUnit.typeUnite);
+                int currHealth = getStepHealth(plateau, src, dst, dir);
                 if (currHealth > 0)
                 {
                     NbPointsDeVie newTotalHealth = new NbPointsDeVie(nbPv);
                     int origHealth = origUnit.pointsDeVie;
                     
-                    if (origUnit.couleurUnite == Case.CAR_ROUGE)
-                    {
+                    if (origUnit.couleurUnite == Case.CAR_ROUGE) {
                         newTotalHealth.nbPvRouge = (nbPv.nbPvRouge - origUnit.pointsDeVie) + currHealth;
                     }
-                    else
-                    {
+                    else {
                         newTotalHealth.nbPvNoir = (nbPv.nbPvNoir - origUnit.pointsDeVie) + currHealth;
                     }
                     
@@ -268,6 +281,14 @@ public class JoueurLowatem implements IJoueurLowatem {
         }
     }
     
+    /**
+     * Adding an attack action from the position of the player with specific rules of the game.
+     * @param plateau the map
+     * @param src origin position
+     * @param dst position of distination
+     * @param actions action where to add
+     * @param nbPv initial total health of players
+     */
     void checkAddAttack(Case[][] plateau, Coordonnees src, Coordonnees dst, ActionsPossibles actions, NbPointsDeVie nbPv)
     {
         Case origUnit = plateau[src.ligne][src.colonne];
@@ -300,6 +321,15 @@ public class JoueurLowatem implements IJoueurLowatem {
         }
     }
     
+    /**
+     * Adding an attack action within checking if unit is present and unit is enemy
+     * @param plateau the map
+     * @param src original position of the unit
+     * @param dst distination
+     * @param attackPos attack position to attack
+     * @param actions action where add to
+     * @param nbPv total health of players
+     */
     void checkAddAttackAt(Case[][] plateau, Coordonnees src, Coordonnees dst, Coordonnees attackPos, ActionsPossibles actions, NbPointsDeVie nbPv)
     {
         Case origUnit = plateau[src.ligne][src.colonne];
@@ -314,6 +344,14 @@ public class JoueurLowatem implements IJoueurLowatem {
         }
     }
     
+    /**
+     * Calculate a new total healthes with attack.
+     * An action of attack between origUnit and attackUnit to calculate a final new total healthes
+     * @param origUnit an attacker
+     * @param attackUnit the unit that will be attacked
+     * @param totalHP original total healthes
+     * @return new calculated total healthes
+     */
     static NbPointsDeVie getNewTotalHealth(Case origUnit, Case attackUnit, NbPointsDeVie totalHP)
     {
         NbPointsDeVie oldHealths = new NbPointsDeVie();
@@ -329,10 +367,17 @@ public class JoueurLowatem implements IJoueurLowatem {
         return newTotalHealth;
     }
     
+    /**
+     * Using a formulas to calculate the health for both player, attacker and attacked player, for each type of unit is different.
+     * @param oldPvAttacker an attacker health
+     * @param oldPvAttack an attacked health
+     * @param unit an attacker unit
+     * @return changed health of them
+     */
     static NbPointsDeVie getAttackedHealth(int oldPvAttacker, int oldPvAttack, Case unit)
     {   
         int resultAttacker = oldPvAttacker - Utils.getAttackerDamage(unit.typeUnite) - (int)((oldPvAttack - 5) / 2);
-        int resultAttack = oldPvAttack - Utils.getAttackedDamage(unit.typeUnite) - (int)((oldPvAttacker - 5) / 2); // 3 - 4 + 1
+        int resultAttack = oldPvAttack - Utils.getAttackedDamage(unit.typeUnite) - (int)((oldPvAttacker - 5) / 2);
         
         if (resultAttacker < 0)
             resultAttacker = 0;
@@ -348,9 +393,62 @@ public class JoueurLowatem implements IJoueurLowatem {
         return nbPv;
     }
     
-    static int getStepHealth(int step, int origHealth, char typeUnit)
+    /**
+     * Gets a new reduced health by steps
+     * @param step steps to calculate
+     * @param origHealth unit original health
+     * @param typeUnit type unit
+     * @return changed health
+     */
+    static int normalHealthReduction(int step, int origHealth, char typeUnit)
     {
         return origHealth - (int)(Utils.getStepDamageCoef(typeUnit) * step);
+    }
+    
+    /**
+     * Calcule a final health result of reducing steps,
+     * including atitude of the map
+     * @param plateau the map
+     * @param src original position of a unit
+     * @param dst distination of a unit
+     * @param dir diraction in which he is going
+     * @return a reduced health
+     */
+    static int getStepHealth(Case[][] plateau, Coordonnees src, Coordonnees dst, Direction dir)
+    {
+        Case origUnit = plateau[src.ligne][src.colonne];
+        
+        int steps = 0;
+        
+        if (src.ligne == dst.ligne) {
+            steps = Math.abs(src.colonne - dst.colonne);
+        }
+        else if (src.colonne == dst.colonne) {
+            steps = Math.abs(src.ligne - dst.ligne);
+        }
+        
+        if (origUnit.typeUnite == Utils.CAR_PLANE || origUnit.typeUnite == Utils.CAR_BATTLE_SHIP)
+            return normalHealthReduction(steps, origUnit.pointsDeVie, origUnit.typeUnite);
+        
+        float cost = 0.0f;
+        
+        Coordonnees currPos = new Coordonnees(src.ligne, src.colonne);
+        for (int i = 0; i < steps; i++) {
+            Case currUnit = plateau[currPos.ligne][currPos.colonne];
+            int currAttitude = currUnit.altitude;
+            
+            currPos = currPos.suivantes(dir);
+            currUnit = plateau[currPos.ligne][currPos.colonne];
+            int nextAttitude = currUnit.altitude;
+            
+            
+            if (nextAttitude - currAttitude <= 0)
+                cost += Utils.getStepDamageCoef(origUnit.typeUnite);
+            else
+                cost += (nextAttitude - currAttitude + 2) * Utils.getStepDamageCoef(origUnit.typeUnite) / 2;
+        }
+        
+        return origUnit.pointsDeVie - (int)((double)Math.round(cost * 20) * .05);
     }
 
     /**
@@ -380,6 +478,14 @@ public class JoueurLowatem implements IJoueurLowatem {
                 + "," + nbPv.nbPvRouge + "," + nbPv.nbPvNoir;
     }
     
+    /**
+     * Combine all variables for attack action
+     * @param src original pos of a unit
+     * @param dst distination of a unit
+     * @param attackPos an attack position
+     * @param nbPv total health of all players
+     * @return a whole attack action in string
+     */
     static String chaineActionAttack(Coordonnees src, Coordonnees dst, Coordonnees attackPos, NbPointsDeVie nbPv)
     {
         return "" + src.carLigne() + src.carColonne()
@@ -388,6 +494,12 @@ public class JoueurLowatem implements IJoueurLowatem {
                 + "," + nbPv.nbPvRouge + "," + nbPv.nbPvNoir;
     }
     
+    /**
+     * Adding an action of fire wall, all variables to combine for an action
+     * @param dir from which side it go
+     * @param actions an action where to write
+     * @param nbPv total health of all players
+     */
     static void addFireAction(Direction dir, ActionsPossibles actions, NbPointsDeVie nbPv)
     {
         actions.ajouterAction(
