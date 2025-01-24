@@ -99,6 +99,19 @@ public class Utils {
             case Direction.EST -> Direction.NORD;
         };
     }
+    
+    // -------- Coefficients ---------
+    static int getUnitCoef(char typeUnit)
+    {
+        return switch (typeUnit) {
+            case Case.CAR_SOLDATS -> 3;
+            case CAR_TANK -> 2;
+            case CAR_LANCE_MISSILES -> 1;
+            case CAR_PLANE -> 2;
+            case CAR_BATTLE_SHIP -> 4;
+            default -> 0;
+        };
+    }
 
     /**
      * Construit un plateau à partir de sa représentation sour forme texte,
